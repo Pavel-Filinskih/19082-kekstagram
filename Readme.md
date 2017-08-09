@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Павел Филинских](https://up.htmlacademy.ru/javascript/10/user/19082).
-* Наставник: `Неизвестно`.
+* Наставник: `без наставника`.
 
 ---
 
