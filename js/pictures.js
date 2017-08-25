@@ -1,15 +1,19 @@
 'use strict';
 
+var ENTER_KEY_CODE = 13;
+var ESCAPE_KEY_CODE = 27;
+
 var uploadOverlay = document.querySelector('.upload-overlay');
 var galleryOverlay = document.querySelector('.gallery-overlay');
-var OverlayImage = galleryOverlay.querySelector('.gallery-overlay-image');
-var OverlayLike = galleryOverlay.querySelector('.likes-count');
-var OverlayComment = galleryOverlay.querySelector('.comments-count');
+var galleryClose = document.querySelector('.gallery-overlay-close');
+var overlayImage = galleryOverlay.querySelector('.gallery-overlay-image');
+var overlayLike = galleryOverlay.querySelector('.likes-count');
+var overlayComment = galleryOverlay.querySelector('.comments-count');
 var photoContainer = document.querySelector('.pictures');
 var photoTemplate = document.querySelector('#picture-template');
 
 var INDEXPHOTO = 0;
-var MAXPHOTOS = 25;
+var MAXPHOTOS = 26; // фоток в папке photos - 26!
 
 var MINLIKES = 15;
 var MAXLIKES = 200;
@@ -55,6 +59,8 @@ function getElementPic(photo) {
   var element = photoTemplate.content.cloneNode(true);
   var pic = element.querySelector('img');
   pic.src = userPhotos[i].url;
+  element.querySelector('.picture-likes').textContent = photo.likes;
+  element.querySelector('.picture-comments').textContent = photo.comments.length;
   return element;
 }
 
@@ -68,13 +74,78 @@ cloneSlider(MAXPHOTOS);
 
 /* генерируем превьюшку */
 
-function showGalleryPreview(item, index) {
-  OverlayImage.src = item[index].url;
-  OverlayLike.textContent = item[index].likes;
-  OverlayComment.textContent = item[index].comments;
-}
+var showGalleryPreview = function (item, index) {
+  overlayImage.src = item[index].url;
+  overlayLike.textContent = item[index].likes;
+  overlayComment.textContent = item[index].comments;
+};
 
 showGalleryPreview(userPhotos, INDEXPHOTO);
 
-uploadOverlay.classList.add('hidden');
-galleryOverlay.classList.remove('hidden');
+/* выводим в превью лайки, коменты */
+
+var previewPhoto = function (pic) {
+  overlayImage.src = pic.src;
+  overlayLike.textContent = pic.parentNode.querySelector('.picture-likes').textContent;
+  overlayComment.textContent = pic.parentNode.querySelector('.picture-comments').textContent;
+};
+
+photoContainer.addEventListener('click', function (evt) {
+  if (evt.target.src) {
+    var clickPic = evt.target;
+    previewPhoto(clickPic);
+    showElement(galleryOverlay);
+    evt.preventDefault();
+  }
+}, true);
+
+/* подключаем обработчики откр и закр превью */
+
+var showElement = function (elem) {
+  elem.classList.remove('hidden');
+};
+
+var hideElement = function (elem) {
+  elem.classList.add('hidden');
+};
+
+galleryClose.addEventListener('click', function () {
+  hideElement(galleryOverlay);
+});
+
+galleryClose.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEY_CODE) {
+    hideElement(galleryOverlay);
+  }
+});
+
+galleryClose.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ESCAPE_KEY_CODE) {
+    showElement(galleryClose);
+  }
+});
+
+photoContainer.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEY_CODE) {
+    evt.preventDefault();
+    var focusPic = evt.target.querySelector('img');
+    previewPhoto(focusPic);
+    showElement(galleryOverlay);
+  }
+});
+
+document.addEventListener('keydown', function (evt) {
+  if (!galleryOverlay.classList.contains('hidden')) {
+    if (evt.keyCode === ESCAPE_KEY_CODE) {
+      hideElement(galleryOverlay);
+    }
+  }
+});
+
+document.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ESCAPE_KEY_CODE && galleryOverlay.classList.contains('hidden') === false) {
+    hideElement(galleryOverlay);
+  }
+});
+
+hideElement(uploadOverlay);
